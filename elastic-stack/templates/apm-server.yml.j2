@@ -14,6 +14,16 @@ spec:
   elasticsearchRef:
     name: {{ eck_elastic_name }}
     namespace: {{ eck_elastic_namespace }}
+  http:
+    service:
+      metadata:
+        annotations:
+          # request ECK to create the Apm Server service with the following annotation
+          service.beta.openshift.io/serving-cert-secret-name: "apmserver-openshift-tls"
+    tls:
+      certificate:
+        # use the previously created Secret to on the Apm Server endpoint
+        secretName: apmserver-openshift-tls
 {%- if eck_apmserver.config|d({})|length > 0 %}
   config:
   {%- for param, value in eck_apmserver.config.items() %}
