@@ -13,5 +13,7 @@ spec:
   to:
     kind: Service
     name: {{ eck_kibana_name }}-kb-http
-    targetPort: https
     weight: 100
+  port:
+    targetPort: https
+  wildcardPolicy: None

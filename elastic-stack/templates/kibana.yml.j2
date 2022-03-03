@@ -11,6 +11,16 @@ spec:
   elasticsearchRef:
     name: {{ eck_elastic_name }}
     namespace: {{ eck_elastic_namespace }}
+  http:
+    service:
+      metadata:
+        annotations:
+          # request ECK to create the Kibana service with the following annotation
+          service.beta.openshift.io/serving-cert-secret-name: "kibana-openshift-tls"
+    tls:
+      certificate:
+        # use the previously created Secret to on the Kibana endpoint
+        secretName: kibana-openshift-tls
 {%- if eck_kibana.config|d({})|length > 0 %}
   config:
   {%- for param, value in eck_kibana.config.items() %}
