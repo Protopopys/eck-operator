@@ -1,0 +1,16 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ eck_apmserver_name }}
+  namespace: {{ eck_apmserver_namespace }}
+spec:
+  host: {{ eck_apmserver.host_url|d("apm.apps-crc.testing") }}
+  tls:
+    termination: reencrypt
+    insecureEdgeTerminationPolicy: Redirect
+  to:
+    kind: Service
+    name: {{ eck_apmserver_name }}-apm-http
+    targetPort: https
+    weight: 100

@@ -6,12 +6,12 @@
   loop:
     - kibana.yml
     - elasticsearch.yml
+    - apm-server.yml
   tags: debug
 
 - name: Elasticsearch objects state="{{ state | d('present') }}"
   k8s:
     state: "{{ state | d('present') }}"
-    apply: true
     definition: "{{ lookup('template', item.name) | from_yaml }}"
   when: item.deploy | d(true)
   loop:
@@ -21,10 +21,19 @@
 - name: Kibana objects state="{{ state | d('present') }}"
   k8s:
     state: "{{ state | d('present') }}"
-    apply: true
     definition: "{{ lookup('template', item.name) | from_yaml }}"
   when: item.deploy | d(true)
   loop:
     - name: kibana.yml.j2
     - name: kibana_route.yml.j2
   tags: kibana
+
+- name: APM Server objects state="{{ state | d('present') }}"
+  k8s:
+    state: "{{ state | d('present') }}"
+    definition: "{{ lookup('template', item.name) | from_yaml }}"
+  when: item.deploy | d(true)
+  loop:
+    - name: apm-server.yml.j2
+    - name: apm-server_route.yml.j2
+  tags: apm

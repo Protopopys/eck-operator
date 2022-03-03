@@ -7,8 +7,12 @@ eck_kibana_name: kibana-sandbox
 eck_elastic_namespace: "{{ eck_namespace }}"
 eck_elastic_name: elasticsearch-sandbox
 
+eck_apmserver_namespace: "{{ eck_namespace }}"
+eck_apmserver_name: apmserver-sandbox
+
 eck_kibana_version: 8.0.1
 eck_elastic_version: 8.0.1
+eck_apmserver_version: 8.0.1
 
 # The possible values are:
   # persistent
@@ -27,6 +31,30 @@ eck_volume_claim_delete_policy: "DeleteOnScaledownAndClusterDeletion"
 eck_volume_claim_resources_requests_storage: "5Gi"
 eck_volume_claim_storage_class_name: "standard"
 eck_es_multi_zone_enabled: false
+
+eck_apmserver:
+  count: 1
+  config: {}
+  env: {}
+  host_url: "apm.apps-crc.testing"
+  # resources_requests_memory: 1Gi
+  # resources_requests_cpu: 0.5
+  # resources_limits_memory: 2.5Gi
+  # resources_limits_cpu: 2
+  # tolerations:
+  #   - key: node-role.kubernetes.io/logging
+  #     operator: Exists
+  #     effect: NoSchedule
+  # affinity:
+  #   nodeAffinity:
+  #     preferredDuringSchedulingIgnoredDuringExecution:
+  #       - weight: 1
+  #         preference:
+  #           matchExpressions:
+  #           - key: diskType
+  #             operator: In
+  #             values:
+  #             - ssd
 
 eck_kibana:
   count: 1

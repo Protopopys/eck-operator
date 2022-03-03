@@ -1,0 +1,48 @@
+#jinja2: trim_blocks:False
+---
+apiVersion: apm.k8s.elastic.co/v1
+kind: ApmServer
+metadata:
+  name: {{ eck_apmserver_name }}
+  namespace: {{ eck_apmserver_namespace }}
+spec:
+  version: {{ eck_apmserver_version }}
+  count: {{ eck_apmserver.count|d(1) }}
+  kibanaRef:
+    name: {{ eck_kibana_name }}
+    namespace: {{ eck_kibana_namespace }}
+  elasticsearchRef:
+    name: {{ eck_elastic_name }}
+    namespace: {{ eck_elastic_namespace }}
+{%- if eck_apmserver.config|d({})|length > 0 %}
+  config:
+  {%- for param, value in eck_apmserver.config.items() %}
+    {{ param }}: {{ value }}
+  {%- endfor %}
+{%- endif %}
+  podTemplate:
+    spec:
+    {%- if eck_apmserver.tolerations|d({})|length > 0 %}
+      tolerations:
+        {{ eck_apmserver.tolerations|to_nice_yaml(indent=2)|trim|indent(8) }}
+    {%- endif %}
+    {%- if eck_apmserver.affinity|d({})|length > 0 %}
+      affinity: 
+        {{ eck_apmserver.affinity|to_nice_yaml(indent=2)|trim|indent(8) }}
+    {%- endif %}
+      containers:
+      - name: apm-server
+    {%- if eck_apmserver.env|d({})|length > 0 %}
+        env:
+      {%- for env, value in eck_apmserver.env.items() %}
+        - name: {{ env }}
+          value: "{{ value }}"
+      {%- endfor %}
+    {%- endif %}
+        resources:
+          requests:
+            memory: {{ eck_apmserver.resources_requests_memory|d('100Mi') }}
+            cpu: {{ eck_apmserver.resources_requests_cpu|d(0.1) }}
+          limits:
+            memory: {{ eck_apmserver.resources_limits_memory|d('512Mi') }}
+            cpu: {{ eck_apmserver.resources_limits_cpu|d(1) }}
