@@ -1,0 +1,41 @@
+#jinja2: trim_blocks:False
+---
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: {{ eck_kibana_name }}
+  namespace: {{ eck_kibana_namespace }}
+spec:
+  version: {{ eck_kibana_version }}
+  count: {{ eck_kibana.count|d(1) }}
+  elasticsearchRef:
+    name: {{ eck_elastic_name }}
+    namespace: {{ eck_elastic_namespace }}
+{%- if eck_kibana.config|d({})|length > 0 %}
+  config:
+  {%- for param, value in eck_kibana.config.items() %}
+    {{ param }}: {{ value }}
+  {%- endfor %}
+{%- endif %}
+  podTemplate:
+    spec:
+    {%- if eck_kibana.affinity|d({})|length > 0 %}
+      affinity: 
+        {{ eck_kibana.affinity|to_nice_yaml(indent=2)|trim|indent(8) }}
+    {%- endif %}
+      containers:
+      - name: kibana
+    {%- if eck_kibana.env|d({})|length > 0 %}
+        env:
+      {%- for env, value in eck_kibana.env.items() %}
+        - name: {{ env }}
+          value: "{{ value }}"
+      {%- endfor %}
+    {%- endif %}
+        resources:
+          requests:
+            memory: {{ eck_kibana.resources_requests_memory|d('1Gi') }}
+            cpu: {{ eck_kibana.resources_requests_cpu|d(0.5) }}
+          limits:
+            memory: {{ eck_kibana.resources_limits_memory|d('2.5Gi') }}
+            cpu: {{ eck_kibana.resources_limits_cpu|d(2) }}

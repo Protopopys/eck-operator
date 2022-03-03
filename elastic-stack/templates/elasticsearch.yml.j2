@@ -1,0 +1,77 @@
+#jinja2: trim_blocks:False
+---
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: {{ eck_elastic_name }}
+  namespace: {{ eck_elastic_namespace }}
+{%- if eck_es_multi_zone_enabled %}
+  annotations:
+    eck.k8s.elastic.co/downward-node-labels: "topology.kubernetes.io/zone"
+{%- endif %}
+spec:
+  version: {{ eck_elastic_version }}
+{%- if eck_volume_type == 'persistent' %}
+  volumeClaimDeletePolicy: {{ eck_volume_claim_delete_policy }}
+{%- endif %}
+  nodeSets:
+  {%- for node in eck_elastic_cluster %}
+    - name: {{ node.name }}
+      count: {{ node.count|d(1) }}
+    {%- if node.volume_type|d(eck_volume_type) == 'persistent' %}
+      volumeClaimTemplates:
+      - metadata:
+          # Do not change this name unless you set up a volume mount for the data path.
+          name: elasticsearch-data
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ node.volume_claim_resources_requests_storage|d(eck_volume_claim_resources_requests_storage) }}
+          storageClassName: {{ node.volume_claim_storage_class_name|d(eck_volume_claim_storage_class_name) }}
+    {%- endif %}
+    {%- if node.config|length > 0 %}
+      config:
+      {%- if eck_es_multi_zone_enabled %}
+        node.attr.zone: ${ZONE}
+        cluster.routing.allocation.awareness.attributes: k8s_node_name,zone
+      {%- endif %}
+      {%- for param, value in node.config.items() %}
+        {{ param }}: {{ value }}
+      {%- endfor %}
+    {%- endif %}
+      podTemplate:
+        spec:
+        {%- if node.affinity|d({})|length > 0 %}
+          affinity: 
+            {{ node.affinity|to_nice_yaml(indent=2)|trim|indent(12) }}
+        {%- endif %}
+        {%- if node.volume_type|d(eck_volume_type) == 'temporary' %}
+          volumes:
+          - name: elasticsearch-data
+            emptyDir: {}
+        {%- endif %}
+          containers:
+            - name: elasticsearch
+          {%- if node.env|d({})|length > 0 %}
+              env:
+            {%- for env, value in node.env.items() %}
+              - name: {{ env }}
+                value: "{{ value }}"
+            {%- endfor %}
+            {%- if eck_es_multi_zone_enabled %}
+              - name: ZONE
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.annotations['topology.kubernetes.io/zone']
+            {%- endif %}
+          {%- endif %}
+              resources:
+                requests:
+                  memory: {{ node.resources_requests_memory|d('2Gi') }}
+                  cpu: {{ node.resources_requests_cpu|d(1) }}
+                limits:
+                  memory: {{ node.resources_limits_memory|d('2Gi') }}
+                  cpu: {{ node.resources_limits_cpu|d(1) }}
+  {%- endfor %}

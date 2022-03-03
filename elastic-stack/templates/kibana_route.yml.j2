@@ -1,0 +1,15 @@
+#jinja2: trim_blocks:False
+---
+apiVersion: v1
+kind: Route
+metadata:
+  name: {{ eck_kibana_name }}
+  namespace: {{ eck_kibana_namespace }}
+spec:
+  host: {{ eck_kibana.host_url|d("kibana.apps-crc.testing") }}
+  tls:
+    termination: passthrough # Kibana is the TLS endpoint
+    insecureEdgeTerminationPolicy: Redirect
+  to:
+    kind: Service
+    name: {{ eck_kibana_name }}-kb-http
