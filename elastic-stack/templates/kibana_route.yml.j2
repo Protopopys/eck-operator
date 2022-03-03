@@ -1,6 +1,6 @@
 #jinja2: trim_blocks:False
 ---
-apiVersion: v1
+apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: {{ eck_kibana_name }}
@@ -8,8 +8,10 @@ metadata:
 spec:
   host: {{ eck_kibana.host_url|d("kibana.apps-crc.testing") }}
   tls:
-    termination: passthrough # Kibana is the TLS endpoint
+    termination: reencrypt
     insecureEdgeTerminationPolicy: Redirect
   to:
     kind: Service
     name: {{ eck_kibana_name }}-kb-http
+    targetPort: https
+    weight: 100

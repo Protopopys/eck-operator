@@ -36,85 +36,81 @@ eck_kibana:
       - authorization
   env: {}
   host_url: "kibana.apps-crc.testing"
-  resources_requests_memory: 1Gi
-  resources_requests_cpu: 0.5
-  resources_limits_memory: 2.5Gi
-  resources_limits_cpu: 2
-  tolerations:
-    - key: node-role.kubernetes.io/logging
-      operator: Exists
-      effect: NoSchedule
-  affinity:
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 1
-          preference:
-            matchExpressions:
-            - key: diskType
-              operator: In
-              values:
-              - ssd
+  # resources_requests_memory: 1Gi
+  # resources_requests_cpu: 0.5
+  # resources_limits_memory: 2.5Gi
+  # resources_limits_cpu: 2
+  # tolerations:
+  #   - key: node-role.kubernetes.io/logging
+  #     operator: Exists
+  #     effect: NoSchedule
+  # affinity:
+  #   nodeAffinity:
+  #     preferredDuringSchedulingIgnoredDuringExecution:
+  #       - weight: 1
+  #         preference:
+  #           matchExpressions:
+  #           - key: diskType
+  #             operator: In
+  #             values:
+  #             - ssd
 
 eck_elastic_cluster:
-  - name: master
-    config:
-      node.roles:
-        - master
-    tolerations:
-      - key: node-role.kubernetes.io/logging
-        operator: Exists
-        effect: NoSchedule
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-          - matchExpressions:
-            - key: environment
-              operator: In
-              values:
-              - e2e
-              - production
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            preference:
-              matchExpressions:
-              - key: diskType
-                operator: In
-                values:
-                - ssd
-      podeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-          - matchExpressions:
-            - key: environment
-              operator: In
-              values:
-              - e2e
-              - production
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            preference:
-              matchExpressions:
-              - key: diskType
-                operator: In
-                values:
-                - ssd
-
-  - name: data
+  - name: master-data
     count: 2
     config:
       node.roles:
+        - master
         - data
-    # volume_type: "persistent"
-    # volume_claim_resources_requests_storage: "5Gi"
-    # volume_claim_storage_class_name: "standard"
-    # resources_requests_memory: 4Gi
-    # resources_requests_cpu: 2
-    # resources_limits_memory: 4Gi
-    # resources_limits_cpu: 2
 
-  # - name: coordinator
+  # - name: data
+  #   count: 2
   #   config:
   #     node.roles:
-  #       - remote_cluster_client
-  #       - ingest
+  #       - data
+  #   volume_type: "persistent"
+  #   volume_claim_resources_requests_storage: "5Gi"
+  #   volume_claim_storage_class_name: "standard"
+  #   resources_requests_memory: 4Gi
+  #   resources_requests_cpu: 2
+  #   resources_limits_memory: 4Gi
+  #   resources_limits_cpu: 2
+  #   tolerations:
+  #     - key: node-role.kubernetes.io/logging
+  #       operator: Exists
+  #       effect: NoSchedule
+  #   affinity:
+  #     nodeAffinity:
+  #       requiredDuringSchedulingIgnoredDuringExecution:
+  #         nodeSelectorTerms:
+  #         - matchExpressions:
+  #           - key: environment
+  #             operator: In
+  #             values:
+  #             - e2e
+  #             - production
+  #       preferredDuringSchedulingIgnoredDuringExecution:
+  #         - weight: 1
+  #           preference:
+  #             matchExpressions:
+  #             - key: diskType
+  #               operator: In
+  #               values:
+  #               - ssd
+  #     podeAffinity:
+  #       requiredDuringSchedulingIgnoredDuringExecution:
+  #         nodeSelectorTerms:
+  #         - matchExpressions:
+  #           - key: environment
+  #             operator: In
+  #             values:
+  #             - e2e
+  #             - production
+  #       preferredDuringSchedulingIgnoredDuringExecution:
+  #         - weight: 1
+  #           preference:
+  #             matchExpressions:
+  #             - key: diskType
+  #               operator: In
+  #               values:
+  #               - ssd

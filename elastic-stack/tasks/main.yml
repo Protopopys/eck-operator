@@ -1,12 +1,12 @@
 ---
-# - name: Print k8s manifest
-#   template:
-#     src: "{{ item }}.j2"
-#     dest: "{{ item }}"
-#   loop:
-#     - kibana.yml
-#     - elasticsearch.yml
-#   tags: debug
+- name: Print k8s manifest
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ item }}"
+  loop:
+    - kibana.yml
+    - elasticsearch.yml
+  tags: debug
 
 - name: Elasticsearch objects state="{{ state | d('present') }}"
   k8s:
