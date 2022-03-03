@@ -19,6 +19,10 @@ spec:
 {%- endif %}
   podTemplate:
     spec:
+    {%- if eck_kibana.tolerations|d({})|length > 0 %}
+      tolerations:
+        {{ eck_kibana.tolerations|to_nice_yaml(indent=2)|trim|indent(8) }}
+    {%- endif %}
     {%- if eck_kibana.affinity|d({})|length > 0 %}
       affinity: 
         {{ eck_kibana.affinity|to_nice_yaml(indent=2)|trim|indent(8) }}

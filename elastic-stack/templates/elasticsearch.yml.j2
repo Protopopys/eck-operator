@@ -43,6 +43,10 @@ spec:
     {%- endif %}
       podTemplate:
         spec:
+        {%- if node.tolerations|d({})|length > 0 %}
+          tolerations:
+            {{ node.tolerations|to_nice_yaml(indent=2)|trim|indent(12) }}
+        {%- endif %}
         {%- if node.affinity|d({})|length > 0 %}
           affinity: 
             {{ node.affinity|to_nice_yaml(indent=2)|trim|indent(12) }}

@@ -40,16 +40,12 @@ eck_kibana:
   resources_requests_cpu: 0.5
   resources_limits_memory: 2.5Gi
   resources_limits_cpu: 2
+  tolerations:
+    - key: node-role.kubernetes.io/logging
+      operator: Exists
+      effect: NoSchedule
   affinity:
     nodeAffinity:
-      # requiredDuringSchedulingIgnoredDuringExecution:
-      #   nodeSelectorTerms:
-      #   - matchExpressions:
-      #     - key: environment
-      #       operator: In
-      #       values:
-      #       - e2e
-      #       - production
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 1
           preference:
@@ -64,6 +60,10 @@ eck_elastic_cluster:
     config:
       node.roles:
         - master
+    tolerations:
+      - key: node-role.kubernetes.io/logging
+        operator: Exists
+        effect: NoSchedule
     affinity:
       nodeAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
